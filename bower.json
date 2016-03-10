@@ -1,0 +1,30 @@
+{
+  "name": "range-picker",
+  "authors": [
+    "zhang <cqmygasdq@sina.com>"
+  ],
+  "description": "simple range picker",
+  "main": "app.js",
+  "moduleType": [
+    "globals"
+  ],
+  "keywords": [
+    "range",
+    "picker"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^2.2.1",
+    "mocha": "^2.4.5",
+    "sinonjs": "^1.17.1",
+    "chai": "^3.5.0"
+  }
+}
