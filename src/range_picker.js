@@ -1,4 +1,3 @@
-/*! range-picker - v0.0.1-dev - 2016-03-11 */
 ;(function($) {
     "use strict";
 
@@ -137,12 +136,8 @@
 
         getSelectValue: function() {
             var rightLabelLeftPosition = this.__rightSelectLabel.position().left,
-                rightOffset = this.__totalWidth - rightLabelLeftPosition - this.__rightSelectLabel.width() / 2,
-                data = {
-                    rightOffset: rightOffset,
-                    totalWidth: this.__totalWidth
-                };
-            this.__options.getSelectValueCallback(data);
+                leftOffset = rightLabelLeftPosition + this.__rightSelectLabel.width() / 2;
+            this.__options.getSelectValueCallback(leftOffset, this.__totalWidth);
         }
     };
 
