@@ -1,5 +1,5 @@
 #range-picker
-一个简单的范围选择插件
+一个简单的Jquery范围选择插件
 
 效果图
 ---
@@ -8,7 +8,7 @@
 示例
 ---
 1. 查看项目目录下的 `sample` 文件夹
-2. [jsfiddle示例](https://jsfiddle.net/cqmyg/t8t0teyw/1/)
+2. [jsfiddle示例](https://jsfiddle.net/cqmyg/me1dmz9e/)
 
 使用
 ---
