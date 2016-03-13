@@ -8,7 +8,7 @@
 示例
 ---
 1. 查看项目目录下的 `sample` 文件夹
-2. [jsfiddle示例](https://jsfiddle.net/cqmyg/me1dmz9e/)
+2. [jsfiddle示例](https://jsfiddle.net/cqmyg/me1dmz9e/2/)
 
 使用
 ---
@@ -34,7 +34,7 @@
 $("#date_picker").rangepicker();
 ```
 
-配置
+参数
 ---
 
 ####startValue
@@ -73,22 +73,17 @@ $("#number_range").rangepicker({
     startValue: 0,
     endValue: 100,
     translateSelectLabel: function(currentPosition, totalPosition) {
-        return parseInt(100 * (1 - currentPosition / totalPosition));
+        return parseInt(100 * (currentPosition / totalPosition));
     }
 });
 ```
 
-####getSelectValueCallback
+方法
+---
 
-类型: `Function`
+####getSelectValue
 
-默认值: `$.noop`
-
-######参数
-1. `leftOffset` 改变后的日期
-2. `totalWidth` 事件对象
-
-获取选择范围的回调函数
+获取所选择范围值的回调函数
 
 
 编译和测试
