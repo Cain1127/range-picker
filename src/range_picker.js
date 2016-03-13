@@ -27,8 +27,7 @@
     RangePicker.prototype = {
         constructor: RangePicker,
         __defaultOptions: {
-            type: "single",
-            getSelectValue: $.loop
+            type: "single"
         },
         __template: "<div class='range-picker-wrapper'>" +
                       "<div class='range-picker'>" +
@@ -40,7 +39,7 @@
             this.__options = $.extend({}, this.__defaultOptions, options);
             this.__$containerElement = container;
             this.__render();
-            this.__$datepickerElement = this.__$containerElement.find(".range-picker");
+            this.__$rangepickerElement = this.__$containerElement.find(".range-picker");
             this.__addWidget();
         },
 
@@ -54,56 +53,121 @@
         },
 
         __addWidget: function() {
-            this.__rightSelectLabel = new Label({
-                positionChange: $.proxy(this.__handleLabelPositionChange, this),
-                totalWidth: this.__$datepickerElement.width()
-            });
+            var positionChangeCallback = $.proxy(this.__handleLabelPositionChange, this);
+
+            this.__selectCursors = [];
+            this.__selectCursors.push(new Cursor({
+                positionChange: positionChangeCallback,
+                totalWidth: this.__$rangepickerElement.width()
+            }));
+            // 如果类型是 double 则添加两个游标
+            if (this.__options.type === "double") {
+                this.__selectCursors.push(new Cursor({
+                    positionChange: positionChangeCallback,
+                    totalWidth: this.__$rangepickerElement.width()
+                }));
+            }
             this.__processBar = new ProcessBar();
 
-            this.__$datepickerElement.append(this.__rightSelectLabel.getJQueryElement());
-            this.__$datepickerElement.append(this.__processBar.getJQueryElement());
+            this.__$rangepickerElement.append(this.__processBar.getJQueryElement());
+            for(var i = 0; i < this.__selectCursors.length; i++) {
+                this.__$rangepickerElement.append(this.__selectCursors[i].getJQueryElement());
+            }
             this.__setWidgetInitialValue();
         },
 
         __setWidgetInitialValue: function() {
-            var distance = this.__$datepickerElement.width() / 2;
-            this.__updateView(distance);
-            this.__rightSelectLabel.updatePosition({
-                left: distance - this.__rightSelectLabel.getJQueryElement().width() /2
-            });
+            var totalWidth = this.__$rangepickerElement.width();
 
+            // 游标位置需要偏移半个游标的宽度, 所以先设置游标的文本,才能计算游标的位置
+            this.__selectCursors[0].render(
+                this.__options.translateSelectLabel(totalWidth, totalWidth)
+            );
+
+            if (!isUndefined(this.__selectCursors[1])) {
+                this.__selectCursors[1].render(
+                    this.__options.translateSelectLabel(0, totalWidth)
+                );
+            }
+
+            // 设置游标的位置
+            this.__selectCursors[0].updatePosition({
+                left: totalWidth - this.__selectCursors[0].getJQueryElement().outerWidth() / 2
+            });
+            if (!isUndefined(this.__selectCursors[1])) {
+                this.__selectCursors[1].updatePosition({
+                    left: -this.__selectCursors[1].getJQueryElement().outerWidth() / 2
+                });
+            }
+
+            this.__updateProcessBarView();
         },
 
         __handleLabelPositionChange: function(position) {
             this.__updateView(position.left);
         },
 
-        __updateView: function(distance) {
-            this.__processBar.updatePosition({
-                width: distance
-            });
+        __updateView: function() {
+            this.__updateCursorView();
+            this.__updateProcessBarView();
+        },
 
-            var labelText = this.__options.translateSelectLabel(distance,
-                                                               this.__$datepickerElement.width());
-            this.__rightSelectLabel.render(labelText);
+        __updateCursorView: function() {
+            var i = 0,
+                labelText = "",
+                position = null;
+
+            for(; i < this.__selectCursors.length; i++) {
+                position = this.__selectCursors[i].getArrowPosition();
+                labelText = this.__options.translateSelectLabel(position.left,
+                        this.__$rangepickerElement.width());
+                this.__selectCursors[i].render(labelText);
+            }
+
+        },
+
+        __updateProcessBarView: function() {
+            var cursorPosition = this.__getCursorPosition(),
+                processBarPosition = {
+                    left: cursorPosition.start,
+                    right: this.__$rangepickerElement.width() - cursorPosition.end
+                };
+            this.__processBar.updatePosition(processBarPosition);
+        },
+
+        __getCursorPosition: function() {
+            var position = {
+                start: 0
+            };
+            position.end = this.__selectCursors[0].getArrowPosition().left;
+
+            if (!isUndefined(this.__selectCursors[1])) {
+                if (this.__selectCursors[1].getArrowPosition().left >
+                    this.__selectCursors[0].getArrowPosition().left) {
+                        position.start = position.end;
+                        position.end = this.__selectCursors[1].getArrowPosition().left;
+                } else {
+                    position.start = this.__selectCursors[1].getArrowPosition().left;
+                }
+            }
+
+            return position;
         },
 
         getSelectValue: function() {
-            var rightLabelPosition = this.__rightSelectLabel.getArrowPosition();
+            var position = this.__getCursorPosition();
+            position.totalWidth = this.__$rangepickerElement.width();
 
-            return {
-                endValue: rightLabelPosition.left,
-                totalWidth: this.__$datepickerElement.width()
-            };
+            return position;
         }
     };
 
-    function Label(options) {
+    function Cursor(options) {
         this.__init(options);
     }
 
-    Label.prototype = {
-        constructor: Label,
+    Cursor.prototype = {
+        constructor: Cursor,
         __defaultOptions: {
             positionChange: $.loop,
             initValue: "",
@@ -131,13 +195,17 @@
                     mouseStartX: event.clientX,
                     previousMoveDistance: 0
                 };
+                // 增加 z-index 的值,避免两个游标时被另一个游标遮挡
+                $(this).css("zIndex", 1000);
             }).on("mouseup", function() {
                 this.__rangepicker = null;
+                $(this).css("zIndex", 0);
             }).on("mousemove", function(event) {
                 if (this.__rangepicker && this.__rangepicker.isMouseDown) {
                     self.__handleDragEvent(event.clientX, this.__rangepicker);
                 }
             }).on("mouseout", function() {
+                $(this).css("zIndex", 0);
                 this.__rangepicker = null;
             });
         },
@@ -157,7 +225,7 @@
 
         __calculatePosition: function(offset) {
             var leftPosition = this.__$element.position().left,
-                halfWidth = this.__$element.width() / 2,
+                halfWidth = this.__$element.outerWidth() / 2,
                 newLeftPosition = leftPosition + offset;
 
             if (newLeftPosition + halfWidth > this.__options.totalWidth) {
@@ -184,10 +252,9 @@
         getArrowPosition: function() {
             var elementPosition = this.__$element.position(),
                 arrowPosition = {
-                    left: elementPosition.left + this.__$element.width() / 2, // 需要加上半个游标的宽度
+                    left: elementPosition.left + this.__$element.outerWidth() / 2, // 需要加上半个游标的宽度
                     top: 0
                 };
-
             return arrowPosition;
         }
     };

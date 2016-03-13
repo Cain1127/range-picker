@@ -8,7 +8,7 @@
 示例
 ---
 1. 查看项目目录下的 `sample` 文件夹
-2. [jsfiddle示例](https://jsfiddle.net/cqmyg/me1dmz9e/2/)
+2. [jsfiddle示例](https://jsfiddle.net/cqmyg/me1dmz9e/3/)
 
 使用
 ---
@@ -53,6 +53,25 @@ $("#date_picker").rangepicker();
 
 插件右下角的标签, 如 "2016-03-12"
 
+####type
+
+默认值: "single"
+
+必须: 否
+
+添加开始值的选择游标
+
+例子
+```js
+$("#number_range").rangepicker({
+    type: "double",
+    startValue: 0,
+    endValue: 100,
+    translateSelectLabel: function(currentPosition, totalPosition) {
+        return parseInt(100 * (currentPosition / totalPosition));
+    }
+});
+```
 
 ####translateSelectLabel
 

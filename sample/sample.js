@@ -21,7 +21,6 @@
         endDate = new Date("2013-12-22"),
         offset = endDate - startDate;
 
-
     $("#date_range").rangepicker({
         startValue: dateFormat(startDate, "yyyy-MM-dd"),
         endValue: dateFormat(endDate, "yyyy-MM-dd"),
@@ -32,7 +31,27 @@
         }
     });
 
+    $("#double_date_range").rangepicker({
+        type: "double",
+        startValue: dateFormat(startDate, "yyyy-MM-dd"),
+        endValue: dateFormat(endDate, "yyyy-MM-dd"),
+        translateSelectLabel: function(currentPosition, totalPosition) {
+            var timeOffset = offset * ( currentPosition / totalPosition);
+            var date = new Date(+startDate + parseInt(timeOffset));
+            return dateFormat(date, "yyyy-MM-dd");
+        }
+    });
+
     $("#number_range").rangepicker({
+        startValue: 0,
+        endValue: 100,
+        translateSelectLabel: function(currentPosition, totalPosition) {
+            return parseInt(100 * (currentPosition / totalPosition));
+        }
+    });
+
+    $("#double_number_range").rangepicker({
+        type: "double",
         startValue: 0,
         endValue: 100,
         translateSelectLabel: function(currentPosition, totalPosition) {
