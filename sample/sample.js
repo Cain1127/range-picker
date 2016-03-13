@@ -26,7 +26,7 @@
         startValue: dateFormat(startDate, "yyyy-MM-dd"),
         endValue: dateFormat(endDate, "yyyy-MM-dd"),
         translateSelectLabel: function(currentPosition, totalPosition) {
-            var timeOffset = offset * (1 - currentPosition / totalPosition);
+            var timeOffset = offset * ( currentPosition / totalPosition);
             var date = new Date(+startDate + parseInt(timeOffset));
             return dateFormat(date, "yyyy-MM-dd");
         }
@@ -36,7 +36,7 @@
         startValue: 0,
         endValue: 100,
         translateSelectLabel: function(currentPosition, totalPosition) {
-            return parseInt(100 * (1 - currentPosition / totalPosition));
+            return parseInt(100 * (currentPosition / totalPosition));
         }
-    });    
+    });
 }());

@@ -1,9 +1,17 @@
-/*! range-picker - v0.0.1-dev - 2016-03-11 */
+/*! range-picker - v0.0.1-dev - 2016-03-13 */
 ;(function($) {
     "use strict";
 
+    var STR_REPLACE_REG = /<%=\s*(\w+)\s*%>/g;
+
     function isUndefined(target) {
-        return Object.prototype.toString.call(target) === "[object Undefined]";
+        return typeof target === "undefined";
+    }
+
+    function replace(str, value) {
+        return str.replace(STR_REPLACE_REG, function(match, key) {
+            return value[key];
+        });
     }
 
     function RangePicker(container, options) {
@@ -14,46 +22,27 @@
         if(isUndefined(options.translateSelectLabel)) {
             throw new Error(" RangePicker: translateSelectLabel is need");
         }
-
-        this.__init(container, $.extend({}, this.__defaultOptions, options));
-        return this;
+        this.__init(container, options);
     }
 
     RangePicker.prototype = {
         constructor: RangePicker,
         __defaultOptions: {
             type: "single",
-            changeListener: $.loop,
-            getSelectValueCallback: $.loop
+            getSelectValue: $.loop
         },
-
-        __template:  "<div class='range-picker-wrapper'>" +
-                        "<div class='range-picker'>" +
-                          "<span class='label range-label'><%= startValue%></span>" +
-                          "<span class='process'></span>" +
-                          "<span class='label select-label' data-position='left'></span>" +
-                          "<span class='label select-label' data-position='right'></span>" +
-                          "<span class='label range-label end-label'><%= endValue %></span>" +
-                        "</div>" +
+        __template: "<div class='range-picker-wrapper'>" +
+                      "<div class='range-picker'>" +
+                        "<span class='label range-label'><%= startValue %></span>" +
+                        "<span class='label range-label end-label'><%= endValue %></span>" +
+                      "</div>" +
                     "</div>",
-
-        templateReplaceReg: /<%=\s*(\w+)\s*%>/g,
-
-        compileTemFn: function(template, value) {
-            return template.replace(this.templateReplaceReg, function(match, key) {
-                return value[key];
-            });
-        },
-
-        __init: function(containerElement, options) {
-            this.__containerElement = containerElement;
-            this.__options = options;
+        __init: function(container, options) {
+            this.__options = $.extend({}, this.__defaultOptions, options);
+            this.__$containerElement = container;
             this.__render();
-            this.__cacheElementValue();
-            this.__updateSelectLabelText(this.__rightSelectLabel, 0);
-            this.__updateView();
-            this.__bindEventHandler();
-            //this.__updateCursorWidget();
+            this.__$datepickerElement = this.__$containerElement.find(".range-picker");
+            this.__addWidget();
         },
 
         __render: function() {
@@ -61,88 +50,169 @@
                 startValue: this.__options.startValue,
                 endValue: this.__options.endValue
             },
-            viewStr = this.compileTemFn(this.__template, templateValue);
-
-            this.__containerElement.html(viewStr);
-            // 移除起始的游标
-            if (this.__options.type === "single") {
-                this.__containerElement.find(".select-label[data-position='left']").remove();
-            }
+            viewStr = replace(this.__template, templateValue);
+            this.__$containerElement.html(viewStr);
         },
 
-        __cacheElementValue: function() {
-            this.__totalWidth = this.__containerElement.find(".range-picker-wrapper").width();
-            this.__rightSelectLabel = this.__containerElement.find(".select-label[data-position='right']");
-            this.__activeProcessElement = this.__containerElement.find(".process");
+        __addWidget: function() {
+            this.__rightSelectLabel = new Label({
+                positionChange: $.proxy(this.__handleLabelPositionChange, this),
+                totalWidth: this.__$datepickerElement.width()
+            });
+            this.__processBar = new ProcessBar();
+
+            this.__$datepickerElement.append(this.__rightSelectLabel.getJQueryElement());
+            this.__$datepickerElement.append(this.__processBar.getJQueryElement());
+            this.__setWidgetInitialValue();
         },
 
-        __setWrapperPadding: function() {
-            // 使 div 元素能够包含信绝对定位的 label
-            var labelHeight = this.__containerElement.find(".label").position().top;
-            this.__containerElement.find(".range-picker-wrapper").css({
-                paddingTop: -labelHeight + "px",
+        __setWidgetInitialValue: function() {
+            var distance = this.__$datepickerElement.width() / 2;
+            this.__updateView(distance);
+            this.__rightSelectLabel.updatePosition({
+                left: distance - this.__rightSelectLabel.getJQueryElement().width() /2
+            });
+
+        },
+
+        __handleLabelPositionChange: function(position) {
+            this.__updateView(position.left);
+        },
+
+        __updateView: function(distance) {
+            this.__processBar.updatePosition({
+                width: distance
+            });
+
+            var labelText = this.__options.translateSelectLabel(distance,
+                                                               this.__$datepickerElement.width());
+            this.__rightSelectLabel.render(labelText);
+        },
+
+        getSelectValue: function() {
+            var rightLabelPosition = this.__rightSelectLabel.getArrowPosition();
+
+            return {
+                endValue: rightLabelPosition.left,
+                totalWidth: this.__$datepickerElement.width()
+            };
+        }
+    };
+
+    function Label(options) {
+        this.__init(options);
+    }
+
+    Label.prototype = {
+        constructor: Label,
+        __defaultOptions: {
+            positionChange: $.loop,
+            initValue: "",
+            totalWidth: 0
+        },
+        __template: "<span class='label select-label'></span>",
+
+        __init: function(options) {
+            this.__options = $.extend({}, this.__defaultOptions, options);
+            this.__$element = $(this.__template);
+            this.render(this.__options.initValue);
+            this.__bindDragEventHandler();
+        },
+
+        render: function(textValue) {
+            this.__$element.text(textValue);
+        },
+
+        __bindDragEventHandler: function() {
+            var self = this;
+
+            this.__$element.on("mousedown", function(event) {
+                this.__rangepicker = {
+                    isMouseDown: true,
+                    mouseStartX: event.clientX,
+                    previousMoveDistance: 0
+                };
+            }).on("mouseup", function() {
+                this.__rangepicker = null;
+            }).on("mousemove", function(event) {
+                if (this.__rangepicker && this.__rangepicker.isMouseDown) {
+                    self.__handleDragEvent(event.clientX, this.__rangepicker);
+                }
+            }).on("mouseout", function() {
+                this.__rangepicker = null;
             });
         },
 
-        __updateView: function() {
-            var rightPosition = this.__rightSelectLabel.position().left,
-                rightOffset = this.__totalWidth - rightPosition - this.__rightSelectLabel.width() / 2;
-            this.__updateActiveProcessPosition("right", rightOffset);
-            this.__updateSelectLabelText(this.__rightSelectLabel, rightOffset);
+        __handleDragEvent: function(clientX, elementData) {
+            var distance = clientX - elementData.mouseStartX - elementData.previousMoveDistance;
+            elementData.previousMoveDistance = clientX - elementData.mouseStartX;
+            var leftPosition = this.__calculatePosition(distance);
+            this.updatePosition({
+                left: leftPosition
+            });
+
+            // 获取游标下面箭头的位置,并传递给回调函数
+            this.__options.positionChange(this.getArrowPosition(), this.__$element);
+
         },
 
-        __updateSelectLabelText: function(targetLabel, position) {
-            var textStr = this.__options.translateSelectLabel(position, this.__totalWidth);
-            targetLabel.text(textStr);
-        },
-
-        __updateActiveProcessPosition: function(position, value) {
-            this.__activeProcessElement.css(position, value + "px");
-        },
-
-        __updateRightSelectLabelPosition: function(offset) {
-            var leftPosition = this.__rightSelectLabel.position().left,
-                halfWidth = this.__rightSelectLabel.width() / 2,
+        __calculatePosition: function(offset) {
+            var leftPosition = this.__$element.position().left,
+                halfWidth = this.__$element.width() / 2,
                 newLeftPosition = leftPosition + offset;
-            if (newLeftPosition + halfWidth > this.__totalWidth) {
-                newLeftPosition = this.__totalWidth - halfWidth;
+
+            if (newLeftPosition + halfWidth > this.__options.totalWidth) {
+                newLeftPosition = this.__options.totalWidth - halfWidth;
             } else if (newLeftPosition + halfWidth < 0) {
                 newLeftPosition = -halfWidth;
             }
 
-            this.__rightSelectLabel.css("left", newLeftPosition + "px");
+            return newLeftPosition;
         },
 
-        __bindEventHandler: function() {
-            var self = this;
-            this.__rightSelectLabel.on("mousedown", function(event)  {
-                this.__isMouseDown = true;
-                this.__mouseStartX = event.clientX;
-                this.__previousOffset = 0;
-            }).on("mouseup", function() {
-                this.__isMouseDown = false;
-            }).on("mousemove", function(event) {
-                if (this.__isMouseDown) {
-                    var distance = event.clientX - this.__mouseStartX - this.__previousOffset;
-                    this.__previousOffset = event.clientX - this.__mouseStartX;
-                    self.__updateRightSelectLabelPosition(distance);
-                    self.__updateView();
+        updatePosition: function(position) {
+            for(var key in position) {
+                if (position.hasOwnProperty(key)) {
+                    this.__$element.css(key, position[key] + "px");
                 }
-            }).on("mouseout", function() {
-                this.__isMouseDown = false;
-                this.__mouseStartX = 0;
-                this.__previousOffset = 0;
-            });
+            }
         },
 
-        getSelectValue: function() {
-            var rightLabelLeftPosition = this.__rightSelectLabel.position().left,
-                rightOffset = this.__totalWidth - rightLabelLeftPosition - this.__rightSelectLabel.width() / 2,
-                data = {
-                    rightOffset: rightOffset,
-                    totalWidth: this.__totalWidth
+        getJQueryElement: function() {
+            return this.__$element;
+        },
+
+        getArrowPosition: function() {
+            var elementPosition = this.__$element.position(),
+                arrowPosition = {
+                    left: elementPosition.left + this.__$element.width() / 2, // 需要加上半个游标的宽度
+                    top: 0
                 };
-            this.__options.getSelectValueCallback(data);
+
+            return arrowPosition;
+        }
+    };
+
+    function ProcessBar(options) {
+        this.__init(options);
+    }
+    ProcessBar.prototype = {
+        constructor: ProcessBar,
+        __template: "<span class='process'></span>",
+        __init: function() {
+            this.__$element = $(this.__template);
+        },
+
+        updatePosition: function(position) {
+            for(var key in position) {
+                if (position.hasOwnProperty(key)) {
+                    this.__$element.css(key, position[key] + "px");
+                }
+            }
+        },
+
+        getJQueryElement: function() {
+            return this.__$element;
         }
     };
 
