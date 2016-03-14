@@ -1,67 +1,78 @@
 #range-picker
-一个简单的Jquery范围选择插件
 
-效果图
+a range picker of JQuery plugins
+
+Screenshot
 ---
 ![date-picker](./images/range-picker.png)
 
-示例
+Examples
 ---
-1. 查看项目目录下的 `sample` 文件夹
-2. [jsfiddle示例](https://jsfiddle.net/cqmyg/me1dmz9e/4/)
+1. see `sample` folder
+2. [jsfiddle](https://jsfiddle.net/cqmyg/me1dmz9e/4/)
 
-使用
+Browser Support
+---
+1. chrome
+2. firefox
+3. IE8+
+
+Requirements
+---
+1. JQuery 1.7+
+
+Usage
 ---
 
-###引入css
+###Import css
 
 ```html
-<!-- 注意: 请替换为自己的文件路径 -->
 <link rel="stylesheet" href="../css/range-picker.css" type="text/css" charset="utf-8" />
 
 ```
 
-###引入javascript
+###Import javascript
 
 ```html
-<!-- 注意: 请替换为自己的文件路径 -->
 <script src="../bower_components/jquery/dist/jquery.js" type="text/javascript" charset="utf-8"></script>
 <script src="../src/range_picker.js" type="text/javascript" charset="utf-8"></script>
 
 ```
-###调用
+###Call
 ```javascript
 $("#date_picker").rangepicker();
 ```
 
-参数
+Options
 ---
 
 ####startValue
 
-默认值: 无
+default: none
 
-必须: 是
+must: true
 
-选择插件的左下角的标签, 如"2016-01-03"
+the left label, eg: "2016/01/03"
 
 ####endValue
 
-默认值: 无
+default: none
 
-必须: 是
+must: true
 
-插件右下角的标签, 如 "2016-03-12"
+the right label, eg: "2016/03/12"
 
 ####type
 
-默认值: "single"
+type: String
 
-必须: 否
+default: single
 
-添加开始值的选择游标
+must: false
 
-例子
+Choose picker type, could be `single` - for one cursor, or `double` for two cursors
+
+example
 ```js
 $("#number_range").rangepicker({
     type: "double",
@@ -75,18 +86,20 @@ $("#number_range").rangepicker({
 
 ####translateSelectLabel
 
-类型: `Function`
+type: `Function`
 
-默认值: 无
+default: none
 
-######参数
-1. `currentPosition` 游标的当前位置
-2. `totalWidth` 整个进度条的宽度
+must: true
 
-用于获取进度条上面滑动游标的文本内容的回调函数
+######parameter
+1. `currentPosition` cursor position
+2. `totalWidth` the width of process bar
+
+get the text for cursor
 
 
-例子
+example
 ```js
 $("#number_range").rangepicker({
     startValue: 0,
@@ -97,39 +110,37 @@ $("#number_range").rangepicker({
 });
 ```
 
-方法
+Function
 ---
 
 ####getSelectValue
 
-获取所选择范围值的回调函数
+get selected range
 
 
-编译和测试
+Build
 ---
 
-###搭建环境
+First, get a copy of the git repo by running:
 
-######安装 `grunt` 和 `bower`
-
-######克隆项目
-```
-git clone https://git.oschina.net/syjefbz/range-picker.git
+```shell
+git clone https://github.com/zhangtasdq/range-picker.git
 ```
 
-######下载依赖包
-```
-// 在项目目录下运行
-bower install
-npm install
+Enter the directory and install the dependencies:
+
+```shell
+cd range-picker && npm install && bower install
 ```
 
-###编译
-```
+Build
+
+```shell
 grunt
 ```
 
-###运行测试
-```
+Test
+
+```shell
 grunt test
 ```

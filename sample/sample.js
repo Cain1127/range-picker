@@ -17,28 +17,28 @@
         return fmt;
     }
 
-    var startDate = new Date("2013-11-12"),
-        endDate = new Date("2013-12-22"),
+    var startDate = new Date("2013/11/12"),
+        endDate = new Date("2013/12/22"),
         offset = endDate - startDate;
 
     $("#date_range").rangepicker({
-        startValue: dateFormat(startDate, "yyyy-MM-dd"),
-        endValue: dateFormat(endDate, "yyyy-MM-dd"),
+        startValue: dateFormat(startDate, "yyyy/MM/dd"),
+        endValue: dateFormat(endDate, "yyyy/MM/dd"),
         translateSelectLabel: function(currentPosition, totalPosition) {
             var timeOffset = offset * ( currentPosition / totalPosition);
             var date = new Date(+startDate + parseInt(timeOffset));
-            return dateFormat(date, "yyyy-MM-dd");
+            return dateFormat(date, "yyyy/MM/dd");
         }
     });
 
     $("#double_date_range").rangepicker({
         type: "double",
-        startValue: dateFormat(startDate, "yyyy-MM-dd"),
-        endValue: dateFormat(endDate, "yyyy-MM-dd"),
+        startValue: dateFormat(startDate, "yyyy/MM/dd"),
+        endValue: dateFormat(endDate, "yyyy/MM/dd"),
         translateSelectLabel: function(currentPosition, totalPosition) {
             var timeOffset = offset * ( currentPosition / totalPosition);
             var date = new Date(+startDate + parseInt(timeOffset));
-            return dateFormat(date, "yyyy-MM-dd");
+            return dateFormat(date, "yyyy/MM/dd");
         }
     });
 
