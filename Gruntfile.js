@@ -38,7 +38,15 @@ module.exports = function(grunt) {
                             '<%= grunt.template.today("yyyy-mm-dd") %> */'
                 },
                 files: {
-                    "dist/range_picker.min.js" : ["dist/range_picker.js"]
+                    "dist/js/range_picker.min.js" : ["dist/range_picker.js"]
+                }
+            }
+        },
+
+        cssmin: {
+            target: {
+                files: {
+                    "dist/css/range-picker.min.css" : ["css/range-picker.css"]
                 }
             }
         },
@@ -61,9 +69,11 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-contrib-jshint");
     grunt.loadNpmTasks("grunt-contrib-concat");
     grunt.loadNpmTasks("grunt-contrib-uglify");
+    grunt.loadNpmTasks("grunt-contrib-cssmin");
     grunt.loadNpmTasks("grunt-mocha");
 
     grunt.registerTask("test", ["mocha:test"]);
-    grunt.registerTask("compile", ["jshint:check", "mocha:test", "concat:dist", "uglify:compress"]);
+    grunt.registerTask("compile", ["jshint:check", "mocha:test",
+                                   "concat:dist", "uglify:compress", "cssmin"]);
     grunt.registerTask("default", ["compile"]);
 };

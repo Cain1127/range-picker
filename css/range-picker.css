@@ -23,7 +23,6 @@
 .range-picker .label {
     display: inline-block;
     padding: 2px 4px;
-    font-size: 0.85em;
     border-radius: 5px;
     cursor: pointer;
 }
@@ -43,6 +42,7 @@
     position: absolute;
     z-index: 0;
     bottom: 100%;
+    font-family: monospace;
     margin-bottom: 4px;
     white-space: nowrap;
     background-color: #20b426;
@@ -51,7 +51,6 @@
 
 .range-picker .select-label:after {
     content: "";
-    display: block;
     position: absolute;
     top: 100%;
     left: 50%;
