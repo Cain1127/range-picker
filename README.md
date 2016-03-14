@@ -48,31 +48,31 @@ Options
 
 ####startValue
 
-default: none
+default: `none`
 
-must: true
+require: `true`
 
-the left label, eg: "2016/01/03"
+the left label. eg: "2016/01/03"
 
 ####endValue
 
-default: none
+default: `none`
 
-must: true
+require: `true`
 
-the right label, eg: "2016/03/12"
+the right label. eg: "2016/03/12"
 
 ####type
 
-type: String
+type: `String`
 
-default: single
+default: `single`
 
-must: false
+require: `false`
 
 Choose picker type, could be `single` - for one cursor, or `double` for two cursors
 
-example
+######example
 ```js
 $("#number_range").rangepicker({
     type: "double",
@@ -88,9 +88,9 @@ $("#number_range").rangepicker({
 
 type: `Function`
 
-default: none
+default: `none`
 
-must: true
+require: `true`
 
 ######parameter
 1. `currentPosition` cursor position
@@ -99,7 +99,7 @@ must: true
 get the text for cursor
 
 
-example
+######example
 ```js
 $("#number_range").rangepicker({
     startValue: 0,
