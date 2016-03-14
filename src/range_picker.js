@@ -150,17 +150,26 @@
 
         __getCursorPosition: function() {
             var position = {
-                start: 0
-            };
-            position.end = this.__selectCursors[0].getArrowPosition().left;
+                start: 0,
+                startLabel: ""
+            },
+            tmpPosition = this.__selectCursors[0].getArrowPosition();
+
+            // 先将第一个游标设置为结束位置
+            position.end = tmpPosition.left;
+            position.endLabel = tmpPosition.positionLabel;
 
             if (!isUndefined(this.__selectCursors[1])) {
-                if (this.__selectCursors[1].getArrowPosition().left >
-                    this.__selectCursors[0].getArrowPosition().left) {
+                tmpPosition = this.__selectCursors[1].getArrowPosition();
+                // 当存在第二个光标时且第二个光标距离更远,将第二个光标设置为结束位置,否则第二个光标设置为起始位置
+                if (tmpPosition.left > position.end) {
                         position.start = position.end;
-                        position.end = this.__selectCursors[1].getArrowPosition().left;
+                        position.startLabel = position.endLabel;
+                        position.end = tmpPosition.left;
+                        position.endLabel = tmpPosition.positionLabel;
                 } else {
-                    position.start = this.__selectCursors[1].getArrowPosition().left;
+                    position.start = tmpPosition.left;
+                    position.startLabel = tmpPosition.positionLabel;
                 }
             }
 
@@ -266,6 +275,7 @@
             var elementPosition = this.__$element.position(),
                 arrowPosition = {
                     left: elementPosition.left + this.__$element.outerWidth() / 2, // 需要加上半个游标的宽度
+                    positionLabel: this.__$element.text()
                 };
             return arrowPosition;
         }
