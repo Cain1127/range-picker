@@ -31,6 +31,7 @@
         },
         __template: "<div class='range-picker-wrapper'>" +
                       "<div class='range-picker'>" +
+                        "<span class='not-select-process'></span>" +
                         "<span class='label range-label'><%= startValue %></span>" +
                         "<span class='label range-label end-label'><%= endValue %></span>" +
                       "</div>" +
@@ -41,6 +42,7 @@
             this.__render();
             this.__$rangepickerElement = this.__$containerElement.find(".range-picker");
             this.__addWidget();
+            this.__setContainerToWrapperWidget();
         },
 
         __render: function() {
@@ -101,6 +103,17 @@
             }
 
             this.__updateProcessBarView();
+        },
+
+        __setContainerToWrapperWidget: function() {
+            // 添加容器的 paddint-top 以包含游标
+            var wrapperElement = this.__$containerElement.find(".range-picker-wrapper"),
+                cursorHeight = -(this.__selectCursors[0].getJQueryElement().position().top);
+            if (!isUndefined(this.__selectCursors[1]) &&
+                -(this.__selectCursors[1].getJQueryElement().position().top) > cursorHeight) {
+                cursorHeight = -(this.__selectCursors[1].getJQueryElement().position().top);
+            }
+            wrapperElement.css("paddingTop", cursorHeight + "px");
         },
 
         __handleLabelPositionChange: function(position) {
@@ -253,7 +266,6 @@
             var elementPosition = this.__$element.position(),
                 arrowPosition = {
                     left: elementPosition.left + this.__$element.outerWidth() / 2, // 需要加上半个游标的宽度
-                    top: 0
                 };
             return arrowPosition;
         }
