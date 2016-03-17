@@ -124,7 +124,7 @@ Build
 First, get a copy of the git repo by running:
 
 ```shell
-git clone https://github.com/zhangtasdq/range-picker.git
+git clone https://git.oschina.net/syjefbz/range-picker.git
 ```
 
 Enter the directory and install the dependencies:

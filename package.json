@@ -1,6 +1,6 @@
 {
   "name": "range-picker",
-  "version": "0.0.1-dev",
+  "version": "0.0.2-dev",
   "description": "simple range picker",
   "main": "app.js",
   "scripts": {

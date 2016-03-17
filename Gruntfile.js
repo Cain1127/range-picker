@@ -22,7 +22,7 @@ module.exports = function(grunt) {
         concat: {
             dist: {
                 src: ["src/range_picker.js"],
-                dest: "dist/range_picker.js",
+                dest: "dist/js/range_picker.js",
                 options: {
                     banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
                             '<%= grunt.template.today("yyyy-mm-dd") %> */\n'
@@ -38,7 +38,7 @@ module.exports = function(grunt) {
                             '<%= grunt.template.today("yyyy-mm-dd") %> */'
                 },
                 files: {
-                    "dist/js/range_picker.min.js" : ["dist/range_picker.js"]
+                    "dist/js/range_picker.min.js" : ["dist/js/range_picker.js"]
                 }
             }
         },
