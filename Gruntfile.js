@@ -50,6 +50,12 @@ module.exports = function(grunt) {
                 }
             }
         },
+        copy: {
+            main: {
+                src: "css/range-picker.css",
+                dest: "dist/css/range-picker.css"
+            }
+        },
 
         mocha: {
 
@@ -70,10 +76,11 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-contrib-concat");
     grunt.loadNpmTasks("grunt-contrib-uglify");
     grunt.loadNpmTasks("grunt-contrib-cssmin");
+    grunt.loadNpmTasks("grunt-contrib-copy");
     grunt.loadNpmTasks("grunt-mocha");
 
     grunt.registerTask("test", ["mocha:test"]);
     grunt.registerTask("compile", ["jshint:check", "mocha:test",
-                                   "concat:dist", "uglify:compress", "cssmin"]);
+                                   "concat:dist", "uglify:compress", "cssmin", "copy"]);
     grunt.registerTask("default", ["compile"]);
 };
