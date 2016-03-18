@@ -27,6 +27,8 @@
 
     "predef": [
         "$",
+        "jQuery",
+        "define",
         "describe",
         "expect",
         "it",

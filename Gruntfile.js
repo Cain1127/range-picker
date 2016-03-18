@@ -22,7 +22,7 @@ module.exports = function(grunt) {
         concat: {
             dist: {
                 src: ["src/range_picker.js"],
-                dest: "dist/range_picker.js",
+                dest: "dist/js/range_picker.js",
                 options: {
                     banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
                             '<%= grunt.template.today("yyyy-mm-dd") %> */\n'
@@ -38,7 +38,7 @@ module.exports = function(grunt) {
                             '<%= grunt.template.today("yyyy-mm-dd") %> */'
                 },
                 files: {
-                    "dist/js/range_picker.min.js" : ["dist/range_picker.js"]
+                    "dist/js/range_picker.min.js" : ["dist/js/range_picker.js"]
                 }
             }
         },
@@ -48,6 +48,12 @@ module.exports = function(grunt) {
                 files: {
                     "dist/css/range-picker.min.css" : ["css/range-picker.css"]
                 }
+            }
+        },
+        copy: {
+            main: {
+                src: "css/range-picker.css",
+                dest: "dist/css/range-picker.css"
             }
         },
 
@@ -70,10 +76,11 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-contrib-concat");
     grunt.loadNpmTasks("grunt-contrib-uglify");
     grunt.loadNpmTasks("grunt-contrib-cssmin");
+    grunt.loadNpmTasks("grunt-contrib-copy");
     grunt.loadNpmTasks("grunt-mocha");
 
     grunt.registerTask("test", ["mocha:test"]);
     grunt.registerTask("compile", ["jshint:check", "mocha:test",
-                                   "concat:dist", "uglify:compress", "cssmin"]);
+                                   "concat:dist", "uglify:compress", "cssmin", "copy"]);
     grunt.registerTask("default", ["compile"]);
 };

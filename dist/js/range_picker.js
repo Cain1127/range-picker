@@ -1,3 +1,4 @@
+/*! range-picker - v0.0.2-dev - 2016-03-18 */
 ;(function(factory) {
     "use strict";
 

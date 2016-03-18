@@ -4,27 +4,41 @@
     "zhang <cqmygasdq@sina.com>"
   ],
   "description": "simple range picker",
-  "main": "app.js",
+  "main": [
+    "dist/js/range_picker.js",
+    "dist/css/range-picker.css"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@git.oschina.net:syjefbz/range-picker.git"
+  },
   "moduleType": [
-    "globals"
+    "globals",
+    "amd"
   ],
   "keywords": [
     "range",
     "picker"
   ],
   "license": "MIT",
-  "homepage": "",
+  "homepage": "https://git.oschina.net/syjefbz/range-picker.git",
   "ignore": [
     "**/.*",
     "node_modules",
     "bower_components",
     "test",
-    "tests"
+    "css",
+    "images",
+    "sample",
+    "src"
   ],
   "dependencies": {
-    "jquery": "^2.2.1",
+    "jquery": ">=1.7.0"
+  },
+  "devDependencies": {
     "mocha": "^2.4.5",
     "sinonjs": "^1.17.1",
-    "chai": "^3.5.0"
+    "chai": "^3.5.0",
+    "jquery-simulate-ext": "^1.3.0"
   }
 }

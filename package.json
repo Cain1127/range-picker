@@ -1,8 +1,8 @@
 {
   "name": "range-picker",
-  "version": "0.0.1-dev",
+  "version": "0.0.2-dev",
   "description": "simple range picker",
-  "main": "app.js",
+  "main": "dist/js/range_picker.js",
   "scripts": {
     "test": "grunt test"
   },
@@ -19,6 +19,7 @@
   "dependencies": {
     "grunt": "^0.4.5",
     "grunt-contrib-concat": "^1.0.0",
+    "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-cssmin": "^1.0.0",
     "grunt-contrib-jshint": "^1.0.0",
     "grunt-contrib-uglify": "^1.0.0",
