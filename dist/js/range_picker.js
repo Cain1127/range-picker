@@ -1,9 +1,9 @@
-/*! range-picker - v0.0.2-dev - 2016-03-17 */
+/*! range-picker - v0.0.2-dev - 2016-03-18 */
 ;(function(factory) {
     "use strict";
 
     if (typeof define === "function" && define.amd) {
-        // amd 
+        // amd
         define(["jquery"], factory);
     } else {
         factory(jQuery);
@@ -65,18 +65,19 @@
         },
 
         __addWidget: function() {
-            var positionChangeCallback = $.proxy(this.__handleLabelPositionChange, this);
+            var positionChangeCallback = $.proxy(this.__handleLabelPositionChange, this),
+                totalWidth = this.__$rangepickerElement.width();
 
             this.__selectCursors = [];
             this.__selectCursors.push(new Cursor({
                 positionChange: positionChangeCallback,
-                totalWidth: this.__$rangepickerElement.width()
+                totalWidth: totalWidth
             }));
             // 如果类型是 double 则添加两个游标
             if (this.__options.type === "double") {
                 this.__selectCursors.push(new Cursor({
                     positionChange: positionChangeCallback,
-                    totalWidth: this.__$rangepickerElement.width()
+                    totalWidth: totalWidth,
                 }));
             }
             this.__processBar = new ProcessBar();
@@ -95,21 +96,14 @@
             this.__selectCursors[0].render(
                 this.__options.translateSelectLabel(totalWidth, totalWidth)
             );
+            // 设置游标前头的位置为右边界
+            this.__selectCursors[0].updateArrowPosition(totalWidth);
 
             if (!isUndefined(this.__selectCursors[1])) {
-                this.__selectCursors[1].render(
-                    this.__options.translateSelectLabel(0, totalWidth)
-                );
-            }
-
-            // 设置游标的位置
-            this.__selectCursors[0].updatePosition({
-                left: totalWidth - this.__selectCursors[0].getJQueryElement().outerWidth() / 2
-            });
-            if (!isUndefined(this.__selectCursors[1])) {
-                this.__selectCursors[1].updatePosition({
-                    left: -this.__selectCursors[1].getJQueryElement().outerWidth() / 2
-                });
+                var cursor = this.__selectCursors[1];
+                cursor.render(this.__options.translateSelectLabel(0, totalWidth));
+                // 设置游标前头的位置为左边界
+                cursor.updateArrowPosition(0);
             }
 
             this.__updateProcessBarView();
@@ -202,7 +196,6 @@
         constructor: Cursor,
         __defaultOptions: {
             positionChange: $.loop,
-            initValue: "",
             totalWidth: 0
         },
         __template: "<span class='label select-label'></span>",
@@ -210,12 +203,7 @@
         __init: function(options) {
             this.__options = $.extend({}, this.__defaultOptions, options);
             this.__$element = $(this.__template);
-            this.render(this.__options.initValue);
             this.__bindDragEventHandler();
-        },
-
-        render: function(textValue) {
-            this.__$element.text(textValue);
         },
 
         __bindDragEventHandler: function() {
@@ -231,13 +219,13 @@
                 $(this).css("zIndex", 1000);
             }).on("mouseup", function() {
                 this.__rangepicker = null;
-                $(this).css("zIndex", 0);
+                $(this).css("zIndex", 1);
             }).on("mousemove", function(event) {
                 if (this.__rangepicker && this.__rangepicker.isMouseDown) {
                     self.__handleDragEvent(event.clientX, this.__rangepicker);
                 }
             }).on("mouseout", function() {
-                $(this).css("zIndex", 0);
+                $(this).css("zIndex", 1);
                 this.__rangepicker = null;
             });
         },
@@ -245,31 +233,26 @@
         __handleDragEvent: function(clientX, elementData) {
             var distance = clientX - elementData.mouseStartX - elementData.previousMoveDistance;
             elementData.previousMoveDistance = clientX - elementData.mouseStartX;
-            var leftPosition = this.__calculatePosition(distance);
-            this.updatePosition({
-                left: leftPosition
-            });
-
+            var position = this.__calculatePosition(distance);
+            this.updateArrowPosition(position);
             // 获取游标下面箭头的位置,并传递给回调函数
             this.__options.positionChange(this.getArrowPosition(), this.__$element);
 
         },
 
         __calculatePosition: function(offset) {
-            var leftPosition = this.__$element.position().left,
-                halfWidth = this.__$element.outerWidth() / 2,
-                newLeftPosition = leftPosition + offset;
-
-            if (newLeftPosition + halfWidth > this.__options.totalWidth) {
-                newLeftPosition = this.__options.totalWidth - halfWidth;
-            } else if (newLeftPosition + halfWidth < 0) {
-                newLeftPosition = -halfWidth;
+            var newPosition = this.__arrowPosition + offset;
+            // 如果拖动后游标的位置超过了左右边界,则设置为左右边界的位置
+            if (newPosition > this.__options.totalWidth) {
+                newPosition = this.__options.totalWidth;
+            } else if (newPosition < 0) {
+                newPosition = 0;
             }
 
-            return newLeftPosition;
+            return newPosition;
         },
 
-        updatePosition: function(position) {
+        __updatePosition: function(position) {
             for(var key in position) {
                 if (position.hasOwnProperty(key)) {
                     this.__$element.css(key, position[key] + "px");
@@ -277,23 +260,33 @@
             }
         },
 
+        render: function(textValue) {
+            this.__$element.text(textValue);
+        },
+
+        updateArrowPosition: function(position) {
+            this.__arrowPosition = position;
+            this.__updatePosition({
+                left: position - this.__$element.outerWidth() / 2 // 游标的位置减去半个游标的宽度才是游标左边的位置
+            });
+        },
+
         getJQueryElement: function() {
             return this.__$element;
         },
 
         getArrowPosition: function() {
-            var elementPosition = this.__$element.position(),
-                arrowPosition = {
-                    left: elementPosition.left + this.__$element.outerWidth() / 2, // 需要加上半个游标的宽度
-                    positionLabel: this.__$element.text()
-                };
-            return arrowPosition;
+            return {
+                left: this.__arrowPosition,
+                positionLabel: this.__$element.text()
+            };
         }
     };
 
     function ProcessBar(options) {
         this.__init(options);
     }
+
     ProcessBar.prototype = {
         constructor: ProcessBar,
         __template: "<span class='process'></span>",

@@ -30,7 +30,7 @@
             return dateFormat(date, "yyyy/MM/dd");
         }
     });
-
+    
     $("#double_date_range").rangepicker({
         type: "double",
         startValue: dateFormat(startDate, "yyyy/MM/dd"),

@@ -5,8 +5,8 @@
   ],
   "description": "simple range picker",
   "main": [
-      "dist/js/range_picker.js",
-      "dist/css/range-picker.css"
+    "dist/js/range_picker.js",
+    "dist/css/range-picker.css"
   ],
   "repository": {
     "type": "git",
@@ -33,13 +33,12 @@
     "src"
   ],
   "dependencies": {
-    "jquery": ">=1.7.0",
+    "jquery": ">=1.7.0"
   },
-
-  "devDependencies" : {
-      "mocha": "^2.4.5",
-      "sinonjs": "^1.17.1",
-      "chai": "^3.5.0"
+  "devDependencies": {
+    "mocha": "^2.4.5",
+    "sinonjs": "^1.17.1",
+    "chai": "^3.5.0",
+    "jquery-simulate-ext": "^1.3.0"
   }
-
 }
