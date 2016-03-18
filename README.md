@@ -9,7 +9,7 @@ Screenshot
 Examples
 ---
 1. see `sample` folder
-2. [jsfiddle](https://jsfiddle.net/cqmyg/me1dmz9e/4/)
+2. [jsfiddle](https://jsfiddle.net/cqmyg/me1dmz9e/6/)
 
 Browser Support
 ---

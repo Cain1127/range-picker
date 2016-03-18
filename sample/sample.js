@@ -30,7 +30,7 @@
             return dateFormat(date, "yyyy/MM/dd");
         }
     });
-    
+
     $("#double_date_range").rangepicker({
         type: "double",
         startValue: dateFormat(startDate, "yyyy/MM/dd"),
@@ -56,6 +56,28 @@
         endValue: 100,
         translateSelectLabel: function(currentPosition, totalPosition) {
             return parseInt(100 * (currentPosition / totalPosition));
+        }
+    });
+
+    var week = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期天"];
+    $("#week_range").rangepicker({
+        type: "double",
+        startValue: week[0],
+        endValue: week[6],
+        translateSelectLabel: function(currentPosition, totalPosition) {
+            var index = parseInt(6 * (currentPosition / totalPosition));
+            return week[index];
+        }
+    });
+
+    var month = ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"];
+    $("#month_range").rangepicker({
+        type: "double",
+        startValue: month[0],
+        endValue: month[11],
+        translateSelectLabel: function(currentPosition, totalPosition) {
+            var index = parseInt(11 * (currentPosition / totalPosition));
+            return month[index];
         }
     });
 }());
