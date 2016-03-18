@@ -24,6 +24,18 @@ Requirements
 Usage
 ---
 
+###Install
+
+######download
+
+[download range-picker](http://git.oschina.net/syjefbz/range-picker/repository/archive/master)
+
+######bower
+
+```shell
+bower install --save range-picker
+```
+
 ###Import css
 
 ```html
