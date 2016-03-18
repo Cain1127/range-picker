@@ -27,10 +27,12 @@
     "node_modules",
     "bower_components",
     "test",
-    "css",
+    "css/",
     "images",
     "sample",
-    "src"
+    "src",
+    "Gruntfile.js",
+    "package.json"
   ],
   "dependencies": {
     "jquery": ">=1.7.0"
