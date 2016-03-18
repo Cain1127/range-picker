@@ -1,6 +1,6 @@
 {
   "name": "range-picker",
-  "version": "0.0.2-dev",
+  "version": "0.0.2",
   "description": "simple range picker",
   "main": "dist/js/range_picker.js",
   "scripts": {
