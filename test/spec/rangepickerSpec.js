@@ -277,4 +277,51 @@ describe("rangepicker 测试", function() {
         });
     });
 
+    describe("方法测试", function() {
+        var startValue = 0,
+            endValue = 100,
+            totalWidth = 400,
+            translateSelectLabel = function(currentPosition, totalPosition) {
+                return parseInt(100 * (currentPosition / totalPosition));
+            },
+            rangePicker = null;
+
+        before(function() {
+            rangePicker = $("#range_picker").rangepicker({
+                type: "double",
+                startValue: startValue,
+                endValue: endValue,
+                translateSelectLabel: translateSelectLabel
+            });
+        });
+
+        afterEach(function() {
+            $(".select-label:eq(0)").simulate("drag-n-drop", {dx: totalWidth});
+            $(".select-label:eq(1)").simulate("drag-n-drop", {dx: -totalWidth});
+        });
+
+        it("updatePosition 可以使用象素更新游标的位置", function() {
+            rangePicker.updatePosition("-100px", "100px");
+            var position = rangePicker.getSelectValue();
+
+            expect(position.start).to.equal(100);
+            expect(position.startLabel).to.equal("" + translateSelectLabel(100, totalWidth));
+            expect(position.end).to.equal(totalWidth - 100);
+            expect(position.endLabel).to.
+                equal("" + translateSelectLabel(totalWidth - 100, totalWidth));
+        });
+
+        it("updatePosition 可以使用百分比更新位置", function() {
+            rangePicker.updatePosition("10%", "90%");
+            var position = rangePicker.getSelectValue();
+
+            expect(position.start).to.equal(totalWidth * 0.1);
+            expect(position.startLabel).to.
+                equal("" + translateSelectLabel(totalWidth * 0.1, totalWidth));
+            expect(position.end).to.equal(totalWidth * 0.9);
+            expect(position.endLabel).to.
+                equal("" + translateSelectLabel(0.9 * totalWidth, totalWidth));
+        });
+    });
+
 });

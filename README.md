@@ -117,6 +117,31 @@ Function
 
 get selected range
 
+###updatePosition
+
+######parameter
+1. `endPosition` the right cursor position
+2. `startPosition` the left cursor position
+
+set the cursor position
+
+######example
+
+```js
+var rangePicker = $("#number_range").rangepicker({
+    startValue: 0,
+    endValue: 100,
+    translateSelectLabel: function(currentPosition, totalPosition) {
+        return parseInt(100 * (currentPosition / totalPosition));
+    }
+});
+
+rangePicker.updatePosition("-50px", "10%");
+// rangePicker.updatePosition("-50px");
+// rangePicker.updatePosition("-50px", "50px");
+// rangePicker.updatePosition("90%", "10%");
+```
+
 
 Build
 ---

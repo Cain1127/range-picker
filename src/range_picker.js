@@ -197,11 +197,36 @@
             return position;
         },
 
+        __formatPositionValue: function(value, cursorLeftPosition) {
+            var totalWidth = this.__$rangepickerElement.width(),
+                offset = 0;
+            value = value.replace(/\s+/, "");
+
+            if (value[value.length - 1] === "%") {
+                offset = totalWidth * parseInt(value, 10) / 100;
+            } else {
+                offset = cursorLeftPosition + parseInt(value, 10);
+            }
+
+            return offset;
+        },
+
         getSelectValue: function() {
             var position = this.__getCursorPosition();
             position.totalWidth = this.__$rangepickerElement.width();
 
             return position;
+        },
+
+        updatePosition: function(endValue, startValue) {
+            var cursors = this.__selectCursors;
+            cursors[0].updateArrowPosition(this.__formatPositionValue(endValue,
+                                               cursors[0].getArrowPosition().left));
+            if (!isUndefined(cursors[1]) && !isUndefined(startValue)) {
+                cursors[1].updateArrowPosition(this.__formatPositionValue(startValue,
+                                                cursors[1].getArrowPosition().left));
+            }
+            this.__updateView();
         }
     };
 
