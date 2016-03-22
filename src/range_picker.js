@@ -52,6 +52,8 @@
             this.__$rangepickerElement = this.__$containerElement.find(".range-picker");
             this.__addWidget();
             this.__setContainerToWrapperWidget();
+            this.__setCursorInitialPosition();
+            this.__updateProcessBarView();
         },
 
         __render: function() {
@@ -64,20 +66,13 @@
         },
 
         __addWidget: function() {
-            var positionChangeCallback = $.proxy(this.__handleLabelPositionChange, this),
-                totalWidth = this.__$rangepickerElement.width();
+            var positionChangeCallback = $.proxy(this.__handleLabelPositionChange, this);
 
             this.__selectCursors = [];
-            this.__selectCursors.push(new Cursor({
-                positionChange: positionChangeCallback,
-                totalWidth: totalWidth
-            }));
+            this.__selectCursors.push(new Cursor({positionChange: positionChangeCallback}));
             // 如果类型是 double 则添加两个游标
             if (this.__options.type === "double") {
-                this.__selectCursors.push(new Cursor({
-                    positionChange: positionChangeCallback,
-                    totalWidth: totalWidth,
-                }));
+                this.__selectCursors.push(new Cursor({ positionChange: positionChangeCallback}));
             }
             this.__processBar = new ProcessBar();
 
@@ -90,33 +85,56 @@
 
         __setWidgetInitialValue: function() {
             var totalWidth = this.__$rangepickerElement.width();
-
             // 游标位置需要偏移半个游标的宽度, 所以先设置游标的文本,才能计算游标的位置
             this.__selectCursors[0].render(
                 this.__options.translateSelectLabel(totalWidth, totalWidth)
             );
-            // 设置游标前头的位置为右边界
-            this.__selectCursors[0].updateArrowPosition(totalWidth);
 
             if (!isUndefined(this.__selectCursors[1])) {
                 var cursor = this.__selectCursors[1];
                 cursor.render(this.__options.translateSelectLabel(0, totalWidth));
-                // 设置游标前头的位置为左边界
-                cursor.updateArrowPosition(0);
             }
+        },
 
-            this.__updateProcessBarView();
+        __setCursorInitialPosition: function() {
+            var totalWidth = this.__$rangepickerElement.width(),
+                cursors = this.__selectCursors;
+
+            cursors[0].updateArrowPosition(totalWidth);
+            cursors[0].setTotalWidth(totalWidth);
+            if (!isUndefined(cursors[1])) {
+                cursors[1].updateArrowPosition(0);
+                cursors[1].setTotalWidth(totalWidth);
+            }
         },
 
         __setContainerToWrapperWidget: function() {
             // 添加容器的 paddint-top 以包含游标
             var wrapperElement = this.__$containerElement.find(".range-picker-wrapper"),
-                cursorHeight = -(this.__selectCursors[0].getJQueryElement().position().top);
-            if (!isUndefined(this.__selectCursors[1]) &&
-                -(this.__selectCursors[1].getJQueryElement().position().top) > cursorHeight) {
-                cursorHeight = -(this.__selectCursors[1].getJQueryElement().position().top);
+                cursors = this.__selectCursors,
+                totalWidth = this.__$rangepickerElement.width(),
+                cursorHeight = -(cursors[0].getJQueryElement().position().top);
+
+            if (!isUndefined(cursors[1]) &&
+                -(cursors[1].getJQueryElement().position().top) > cursorHeight) {
+                cursorHeight = -(cursors[1].getJQueryElement().position().top);
             }
             wrapperElement.css("paddingTop", cursorHeight + "px");
+
+            // 增加 padding-left 和 padding-right 以包含绝对定位后的游标
+            var endCursorElement = cursors[0].getJQueryElement(),
+                paddingRight = endCursorElement.outerWidth() / 2,
+                paddingLeft = null;
+            cursors[0].render(this.__options.translateSelectLabel(0, totalWidth));
+            paddingLeft = endCursorElement.outerWidth() / 2;
+            // 恢复原来的值
+            cursors[0].render(this.__options.translateSelectLabel(totalWidth, totalWidth));
+
+            wrapperElement.css({
+                paddingLeft: paddingLeft + "px",
+                paddingRight: paddingRight + "px"
+            });
+
         },
 
         __handleLabelPositionChange: function(position) {
@@ -179,11 +197,36 @@
             return position;
         },
 
+        __formatPositionValue: function(value, cursorLeftPosition) {
+            var totalWidth = this.__$rangepickerElement.width(),
+                offset = 0;
+            value = value.replace(/\s+/, "");
+
+            if (value[value.length - 1] === "%") {
+                offset = totalWidth * parseInt(value, 10) / 100;
+            } else {
+                offset = cursorLeftPosition + parseInt(value, 10);
+            }
+
+            return offset;
+        },
+
         getSelectValue: function() {
             var position = this.__getCursorPosition();
             position.totalWidth = this.__$rangepickerElement.width();
 
             return position;
+        },
+
+        updatePosition: function(endValue, startValue) {
+            var cursors = this.__selectCursors;
+            cursors[0].updateArrowPosition(this.__formatPositionValue(endValue,
+                                               cursors[0].getArrowPosition().left));
+            if (!isUndefined(cursors[1]) && !isUndefined(startValue)) {
+                cursors[1].updateArrowPosition(this.__formatPositionValue(startValue,
+                                                cursors[1].getArrowPosition().left));
+            }
+            this.__updateView();
         }
     };
 
@@ -194,8 +237,7 @@
     Cursor.prototype = {
         constructor: Cursor,
         __defaultOptions: {
-            positionChange: $.loop,
-            totalWidth: 0
+            positionChange: $.loop
         },
         __template: "<span class='label select-label'></span>",
 
@@ -242,8 +284,8 @@
         __calculatePosition: function(offset) {
             var newPosition = this.__arrowPosition + offset;
             // 如果拖动后游标的位置超过了左右边界,则设置为左右边界的位置
-            if (newPosition > this.__options.totalWidth) {
-                newPosition = this.__options.totalWidth;
+            if (newPosition > this.__totalWidth) {
+                newPosition = this.__totalWidth;
             } else if (newPosition < 0) {
                 newPosition = 0;
             }
@@ -279,6 +321,10 @@
                 left: this.__arrowPosition,
                 positionLabel: this.__$element.text()
             };
+        },
+
+        setTotalWidth: function(totalWidth) {
+            this.__totalWidth = totalWidth;
         }
     };
 

@@ -31,7 +31,7 @@
         }
     });
 
-    $("#double_date_range").rangepicker({
+    window.hello = $("#double_date_range").rangepicker({
         type: "double",
         startValue: dateFormat(startDate, "yyyy/MM/dd"),
         endValue: dateFormat(endDate, "yyyy/MM/dd"),
@@ -80,4 +80,5 @@
             return month[index];
         }
     });
+
 }());
